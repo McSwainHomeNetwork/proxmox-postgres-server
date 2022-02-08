@@ -27,7 +27,9 @@ terraform {
 
 locals {
   cloud_init = templatefile("${path.module}/cloud-init.yaml.tpl", {
-    ssh_authorized_keys = var.ssh_authorized_keys
+    ssh_authorized_keys     = var.ssh_authorized_keys
+    postgres_k3s_password   = var.postgres_k3s_password
+    postgres_admin_password = var.postgres_admin_password
   })
 }
 
@@ -50,9 +52,16 @@ module "proxmox_cloudinit_vm" {
   cpu_cores = 2
   memory    = 4096
 
-  disks = [{
-    size    = "32G"
-    storage = "local-lvm"
-    type    = "virtio"
-  }]
+  disks = [
+    {
+      size    = "8G"
+      storage = "local-lvm"
+      type    = "virtio"
+    },
+    {
+      size    = "32G"
+      storage = "local-lvm"
+      type    = "virtio"
+    }
+  ]
 }

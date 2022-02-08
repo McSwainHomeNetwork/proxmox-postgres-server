@@ -27,3 +27,15 @@ variable "ssh_authorized_keys" {
   sensitive   = true
   description = "List of authorized keys for SSHing into the instance."
 }
+
+variable "postgres_k3s_password" {
+  type        = string
+  sensitive   = true
+  description = "Password for k3s user."
+}
+
+variable "postgres_admin_password" {
+  type        = string
+  sensitive   = true
+  description = "Password for admin user."
+}
