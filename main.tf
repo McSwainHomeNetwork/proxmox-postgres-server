@@ -45,7 +45,7 @@ module "proxmox_cloudinit_vm" {
   proxmox_url         = var.proxmox_url
   proxmox_target_node = var.proxmox_target_node
 
-  cloudinit_template_name = "ubuntu-server-20.04-focal"
+  cloudinit_template_name = "pcie-storage-ubuntu-server-20.04-focal"
 
   mac_address = "00005e862517"
 
@@ -55,11 +55,6 @@ module "proxmox_cloudinit_vm" {
   disks = [
     {
       size    = "8G"
-      storage = "local-lvm"
-      type    = "virtio"
-    },
-    {
-      size    = "32G"
       storage = "local-lvm"
       type    = "virtio"
     }

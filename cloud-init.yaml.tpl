@@ -21,6 +21,7 @@ write_files:
     superuser_reserved_connections = 3
     password_encryption = scram-sha-256
     ssl = off
+    data_directory = '/data/postgres'
   owner: 'postgres:postgres'
   permissions: '0755'
   defer: true
@@ -31,29 +32,21 @@ write_files:
   append: true
   defer: true
 
-fs_setup:
-  - device: /dev/vdb
-    partition: 1
-    filesystem: ext4
-
-disk_setup:
-  /dev/vdb:
-    table_type: gpt
-    layout: True
-    overwrite: True
-
 mounts:
-- [ /dev/vdb, /data, "auto", "defaults", "0", "0" ]
+- [ UUID=48a3f88e-0d33-41cb-84b9-66fc6db9897b, /data, "xfs", "defaults", "1", "0" ]
 
 runcmd:
-  - [ mkdir, /data ]
-  - [ chown, postgres:postgres, /data ]
-  - [ chmod, 755, /data ]
+  - 'mdadm --assemble /dev/md0 /dev/nvme0n1 /dev/nvme1n1'
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, stop, postgresql.service ]
+  - [ mkdir, -p, /data/postgres ]
+  - [ chown, -R, postgres:postgres, /data ]
+  - [ systemctl, enable, --now, postgresql.service ]
   - [ sudo, -i, -u, postgres, --, psql, -c, "CREATE ROLE k3s ENCRYPTED PASSWORD '${postgres_k3s_password}' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;"]
   - [ sudo, -i, -u, postgres, --, psql, -c, "CREATE DATABASE kubernetes OWNER k3s;"]
   - [ sudo, -i, -u, postgres, --, psql, -c, "CREATE ROLE admin ENCRYPTED PASSWORD '${postgres_admin_password}' NOCREATEDB SUPERUSER INHERIT LOGIN;"]
-  - [ systemctl, daemon-reload ]
-  - [ systemctl, enable, --now, qemu-guest-agent.service ]
-  - [ systemctl, enable, postgresql.service ]
-  - [ systemctl, stop, postgresql.service ]
   - [ systemctl, restart, postgresql.service ]
+  - [ systemctl, enable, --now, qemu-guest-agent.service ]
+
+bootcmd:
+  - 'mdadm --assemble /dev/md0 /dev/nvme0n1 /dev/nvme1n1'
