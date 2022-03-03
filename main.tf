@@ -51,8 +51,8 @@ module "proxmox_cloudinit_vm" {
 
   mac_address = "00005e862517"
 
-  cpu_cores = 2
-  memory    = 4096
+  cpu_cores = 4
+  memory    = 8192
 
   disks = [
     {
