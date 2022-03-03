@@ -39,7 +39,7 @@ write_files:
   permissions: '0600'
 
 mounts:
-- [ UUID=48a3f88e-0d33-41cb-84b9-66fc6db9897b, /data, "xfs", "defaults", "1", "0" ]
+- [ UUID=59bd7786-1525-4ce2-b618-a804ca9d4741, /data, "xfs", "defaults", "1", "0" ]
 - [ 192.168.1.135:/mnt/data/backups/Homelab/pgdump, /backup, "nfs", "nfsvers=4.1,noatime", "0", "0" ]
 
 runcmd:
