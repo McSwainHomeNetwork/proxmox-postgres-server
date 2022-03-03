@@ -33,8 +33,7 @@ write_files:
   append: true
   defer: true
 - path: /var/spool/cron/crontabs/postgres
-  content: |-
-    */30 * * * * sh -c 'pg_dumpall -c --if-exists | gzip -9 > /backup/pg-$(date +"\%Y_\%m_\%d_\%I_\%M_\%p").sql.gz'
+  content: "*/30 * * * * sh -c 'pg_dumpall -c --if-exists | gzip -9 > /backup/pg-$(date +\"\\%Y_\\%m_\\%d_\\%I_\\%M_\\%p\").sql.gz'\n"
   owner: 'postgres:crontab'
   permissions: '0600'
 
