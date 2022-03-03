@@ -48,6 +48,7 @@ runcmd:
   - [ systemctl, stop, postgresql.service ]
   - [ mkdir, -p, /data/postgres ]
   - [ mkdir, -p, /backup ]
+  - [ mount, /backup ]
   - [ chown, -R, postgres:postgres, /data ]
   - [ systemctl, enable, --now, postgresql.service ]
   - [ sudo, -i, -u, postgres, --, psql, -c, "CREATE ROLE k3s ENCRYPTED PASSWORD '${postgres_k3s_password}' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;"]
@@ -62,3 +63,4 @@ runcmd:
 
 bootcmd:
   - 'mdadm --assemble /dev/md0 /dev/nvme0n1 /dev/nvme1n1'
+  - 'mount /backup'
