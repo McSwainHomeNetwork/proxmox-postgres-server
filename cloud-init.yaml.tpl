@@ -34,7 +34,7 @@ write_files:
   defer: true
 - path: /var/spool/cron/crontabs/postgres
   content: |-
-    */30 * * * * sh -c 'pg_dumpall -c --if-exists | gzip -9 > /backup/pg-$(date +"%Y_%m_%d_%I_%M_%p").sql.gz'
+    */30 * * * * sh -c 'pg_dumpall -c --if-exists | gzip -9 > /backup/pg-$(date +"\%Y_\%m_\%d_\%I_\%M_\%p").sql.gz'
   owner: 'postgres:crontab'
   permissions: '0600'
 
@@ -43,7 +43,7 @@ mounts:
 - [ 192.168.1.135:/mnt/data/backups/Homelab/pgdump, /backup, "nfs", "nfsvers=4.1,noatime", "0", "0" ]
 
 runcmd:
-  - 'mdadm --assemble /dev/md0 /dev/nvme0n1 /dev/nvme1n1'
+  - 'mdadm --assemble /dev/md0 /dev/nvme0n1p1 /dev/nvme1n1p1'
   - [ systemctl, daemon-reload ]
   - [ systemctl, stop, postgresql.service ]
   - [ mkdir, -p, /data/postgres ]
@@ -62,5 +62,5 @@ runcmd:
   - [ systemctl, enable, --now, qemu-guest-agent.service ]
 
 bootcmd:
-  - 'mdadm --assemble /dev/md0 /dev/nvme0n1 /dev/nvme1n1'
+  - 'mdadm --assemble /dev/md0 /dev/nvme0n1p1 /dev/nvme1n1p1'
   - 'mount /backup'
