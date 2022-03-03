@@ -11,6 +11,7 @@ package_update: true
 package_upgrade: true
 
 packages:
+- jq
 - nfs-client
 - postgresql
 - qemu-guest-agent
@@ -36,6 +37,55 @@ write_files:
   content: "*/30 * * * * sh -c 'pg_dumpall -c --if-exists | gzip -9 > /backup/pg-$(date +\"\\%Y_\\%m_\\%d_\\%I_\\%M_\\%p\").sql.gz'\n"
   owner: 'postgres:crontab'
   permissions: '0600'
+- path: /etc/prometheus/prometheus.yml
+  content: |-
+    global:
+      scrape_interval: 5s # By default, scrape targets every 15 seconds.
+      # Attach these labels to any time series or alerts when communicating with
+      # external systems (federation, remote storage, Alertmanager).
+      external_labels:
+        monitor: '${REPLACE_NAME}'
+
+    scrape_configs:
+    # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+    - job_name: tfe
+      params:
+        format:
+        - prometheus
+      relabel_configs:
+      - source_labels: [__meta_ec2_instance_id]
+        regex: (.*)
+        target_label: instance
+        replacement: ${1}
+        action: replace
+      ec2_sd_configs:
+      - endpoint: ""
+        region: "REPLACE_REGION"
+        refresh_interval: 1m
+        port: 9090
+        filters:
+        - name: tag:Name
+          values:
+          - ${REPLACE_NAME}
+  owner: 'prometheus:prometheus'
+- path: /etc/systemd/system/prometheus.service
+  content: |-
+    [Unit]
+    Description=Prometheus
+    Wants=network-online.target
+    After=network-online.target
+    [Service]
+    User=prometheus
+    Group=prometheus
+    Type=simple
+    ExecStart=/usr/local/bin/prometheus \
+        --config.file /etc/prometheus/prometheus.yml \
+        --storage.tsdb.path /data/prometheus/ \
+        --web.console.templates=/etc/prometheus/consoles \
+        --web.console.libraries=/etc/prometheus/console_libraries
+
+    [Install]
+    WantedBy=multi-user.target
 
 mounts:
 - [ UUID=59bd7786-1525-4ce2-b618-a804ca9d4741, /data, "xfs", "defaults", "1", "0" ]
@@ -46,9 +96,9 @@ runcmd:
   - [ systemctl, daemon-reload ]
   - [ systemctl, stop, postgresql.service ]
   - [ mkdir, -p, /data/postgres ]
+  - [ chown, -R, postgres:postgres, /data ]
   - [ mkdir, -p, /backup ]
   - [ mount, /backup ]
-  - [ chown, -R, postgres:postgres, /data ]
   - [ systemctl, enable, --now, postgresql.service ]
   - [ sudo, -i, -u, postgres, --, psql, -c, "CREATE ROLE k3s ENCRYPTED PASSWORD '${postgres_k3s_password}' NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;"]
   - [ sudo, -i, -u, postgres, --, psql, -c, "CREATE DATABASE kubernetes OWNER k3s;"]
@@ -59,6 +109,20 @@ runcmd:
   - [ sudo, -i, -u, postgres, --, psql, -c, "CREATE ROLE admin ENCRYPTED PASSWORD '${postgres_admin_password}' NOCREATEDB SUPERUSER INHERIT LOGIN;"]
   - [ systemctl, restart, postgresql.service ]
   - [ systemctl, enable, --now, qemu-guest-agent.service ]
+  - useradd --no-create-home prometheus
+  - mkdir -p /data/prometheus
+  - mkdir -p /etc/prometheus
+  - [ chown, -R, prometheus:prometheus, /data/prometheus ]
+  - wget -O /tmp/prometheus.tgz https://github.com/prometheus/prometheus/releases/download/v2.33.4/prometheus-2.33.4.linux-amd64.tar.gz
+  - sh -c 'cd /tmp && tar xvfz prometheus.tgz'
+  - sudo cp /tmp/prometheus-2.33.4.linux-amd64/prometheus /usr/bin
+  - sudo cp /tmp/prometheus-2.33.4.linux-amd64/promtool /usr/bin/
+  - sudo cp -r /tmp/prometheus-2.33.4.linux-amd64/consoles /etc/prometheus
+  - sudo cp -r /tmp/prometheus-2.33.4.linux-amd64/console_libraries /etc/prometheus
+  - rm -rf /tmp/prometheus-2.33.4.linux-amd64 /tmp/prometheus.tgz
+  - [ chown, -R, prometheus:prometheus, /etc/prometheus ]
+  - systemctl daemon-reload
+  - systemctl enable --now prometheus
 
 bootcmd:
   - 'mdadm --assemble /dev/md0 /dev/nvme0n1p1 /dev/nvme1n1p1'
