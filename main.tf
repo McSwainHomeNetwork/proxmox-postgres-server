@@ -37,7 +37,7 @@ locals {
 
 module "proxmox_cloudinit_vm" {
   source  = "app.terraform.io/McSwainHomeNetwork/cloudinit-vm/proxmox"
-  version = "0.0.1"
+  version = "0.0.3"
 
   name = "postgres"
 
