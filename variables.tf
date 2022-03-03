@@ -39,3 +39,15 @@ variable "postgres_admin_password" {
   sensitive   = true
   description = "Password for admin user."
 }
+
+variable "postgres_vaultwarden_password" {
+  type        = string
+  sensitive   = true
+  description = "Password for vaultwarden user."
+}
+
+variable "postgres_keycloak_password" {
+  type        = string
+  sensitive   = true
+  description = "Password for keycloak user."
+}
