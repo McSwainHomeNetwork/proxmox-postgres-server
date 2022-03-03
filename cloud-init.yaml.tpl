@@ -11,6 +11,7 @@ package_update: true
 package_upgrade: true
 
 packages:
+- nfs-client
 - postgresql
 - qemu-guest-agent
 
@@ -31,9 +32,15 @@ write_files:
     host    all             all             ::0/0                   scram-sha-256
   append: true
   defer: true
+- path: /var/spool/cron/crontabs/postgres
+  content: |-
+    */30 * * * * sh -c 'pg_dumpall -c --if-exists | gzip -9 > /backup/pg-$(date +"%Y_%m_%d_%I_%M_%p").sql.gz'
+  owner: 'postgres:crontab'
+  permissions: '0600'
 
 mounts:
 - [ UUID=48a3f88e-0d33-41cb-84b9-66fc6db9897b, /data, "xfs", "defaults", "1", "0" ]
+- [ 192.168.1.135:/mnt/data/backups/Homelab/pgdump, /backup, "nfs", "nfsvers=4.1,noatime", "0", "0" ]
 
 runcmd:
   - 'mdadm --assemble /dev/md0 /dev/nvme0n1 /dev/nvme1n1'

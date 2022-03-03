@@ -27,10 +27,10 @@ terraform {
 
 locals {
   cloud_init = templatefile("${path.module}/cloud-init.yaml.tpl", {
-    ssh_authorized_keys     = var.ssh_authorized_keys
-    postgres_k3s_password   = var.postgres_k3s_password
-    postgres_admin_password = var.postgres_admin_password
-    postgres_keycloak_password = var.postgres_keycloak_password
+    ssh_authorized_keys           = var.ssh_authorized_keys
+    postgres_k3s_password         = var.postgres_k3s_password
+    postgres_admin_password       = var.postgres_admin_password
+    postgres_keycloak_password    = var.postgres_keycloak_password
     postgres_vaultwarden_password = var.postgres_vaultwarden_password
   })
 }
