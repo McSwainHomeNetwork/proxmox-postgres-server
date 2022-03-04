@@ -112,7 +112,6 @@ write_files:
       static_configs:
       - targets:
         - 'localhost:3000'
-      scheme: https
     - job_name: node
       static_configs:
       - targets:
