@@ -78,7 +78,7 @@ write_files:
       basic_auth:
         username: 'prometheus'
         password: '${prometheus_federation_password}'
-- path: /erc/grafana-prometheus.yaml
+- path: /etc/grafana-prometheus.yaml
   content: |-
     apiVersion: 1
     datasources:
