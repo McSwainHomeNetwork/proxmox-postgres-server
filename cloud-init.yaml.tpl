@@ -73,11 +73,12 @@ write_files:
         - '{__name__=~"job:.*"}'
       static_configs:
       - targets:
-        - 'https://k8s.prometheus.mcswain.dev'
+        - 'k8s.prometheus.mcswain.dev:443'
+      scheme: https
       basic_auth:
         username: 'prometheus'
         password: '${prometheus_federation_password}'
-- path: /etc/grafana/provisioning/datasources/prometheus.yml
+- path: /usr/share/grafana/conf/provisioning/datasources/prometheus.yaml
   defer: true
   owner: 'grafana'
   content: |-
