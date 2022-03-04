@@ -71,7 +71,7 @@ write_files:
         - '{__name__=~"job:.*"}'
       static_configs:
       - targets:
-        - 'k8s.prometheus.mcswain.dev'
+        - 'https://k8s.prometheus.mcswain.dev'
       basic_auth:
         username: 'prometheus'
         password: '${prometheus_federation_password}'
