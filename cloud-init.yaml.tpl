@@ -131,7 +131,7 @@ runcmd:
   - curl -fSsL https://packages.grafana.com/gpg.key | apt-key add -
   - echo "deb https://packages.grafana.com/oss/deb stable main" | tee -a /etc/apt/sources.list.d/grafana.list
   - apt-get update
-  - apt-get install grafana
+  - apt-get install -y grafana
   - mkdir -p /data/grafana
   - systemctl enable --now grafana-server
 
