@@ -84,7 +84,7 @@ write_files:
     datasources:
     - name: Prometheus
       type: prometheus
-      access: direct
+      access: proxy
       url: http://localhost:9090
       isDefault: true
       version: 1
