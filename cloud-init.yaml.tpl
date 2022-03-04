@@ -167,8 +167,6 @@ write_files:
       jsonData:
         timeInterval: 5s
 - path: /etc/loki.yaml
-  defer: true
-  owner: 'loki:loki'
   content: |-
     auth_enabled: false
     server:
