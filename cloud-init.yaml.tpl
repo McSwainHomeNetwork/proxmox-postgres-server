@@ -207,6 +207,7 @@ runcmd:
   - crudini --set /etc/grafana/grafana.ini database name grafana
   - crudini --set /etc/grafana/grafana.ini database user grafana
   - crudini --set /etc/grafana/grafana.ini database password '${postgres_grafana_password}'
+  - chown -R grafana:grafana /data/grafana
   - systemctl start grafana-server
   - wget -O /tmp/node_exporter.tgz https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
   - sh -c 'cd /tmp && tar xvfz node_exporter.tgz'
