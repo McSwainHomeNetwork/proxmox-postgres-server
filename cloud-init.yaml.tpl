@@ -33,32 +33,12 @@ write_files:
   append: true
   defer: true
 - path: /var/spool/cron/crontabs/postgres
+  defer: true
   content: "*/30 * * * * sh -c 'pg_dumpall -c --if-exists | gzip -9 > /backup/pg-$(date +\"\\%Y_\\%m_\\%d_\\%I_\\%M_\\%p\").sql.gz'\n"
   owner: 'postgres:crontab'
   permissions: '0600'
-- path: /etc/prometheus.yml
-  content: |-
-    global:
-      scrape_interval: 5s
-
-    scrape_configs:
-    - job_name: kubernetes
-      honor_labels: true
-      metrics_path: '/federate'
-
-      params:
-        'match[]':
-        - '{job="prometheus"}'
-        - '{__name__=~"job:.*"}'
-
-      static_configs:
-      - targets:
-        - 'k8s.prometheus.mcswain.dev'
-
-      basic_auth:
-        username: 'prometheus'
-        password: '${prometheus_federation_password}'
 - path: /etc/systemd/system/prometheus.service
+  defer: true
   content: |-
     [Unit]
     Description=Prometheus
@@ -69,13 +49,32 @@ write_files:
     Group=prometheus
     Type=simple
     ExecStart=/usr/local/bin/prometheus \
-        --config.file /etc/prometheus/prometheus.yml \
+        --config.file /etc/prometheus.yml \
         --storage.tsdb.path /data/prometheus/ \
         --web.console.templates=/etc/prometheus/consoles \
         --web.console.libraries=/etc/prometheus/console_libraries
-
     [Install]
     WantedBy=multi-user.target
+- path: /etc/prometheus.yml
+  defer: true
+  owner: 'prometheus:prometheus'
+  content: |-
+    global:
+      scrape_interval: 5s
+    scrape_configs:
+    - job_name: kubernetes
+      honor_labels: true
+      metrics_path: '/federate'
+      params:
+        'match[]':
+        - '{job="prometheus"}'
+        - '{__name__=~"job:.*"}'
+      static_configs:
+      - targets:
+        - 'k8s.prometheus.mcswain.dev'
+      basic_auth:
+        username: 'prometheus'
+        password: '${prometheus_federation_password}'
 
 mounts:
 - [ UUID=59bd7786-1525-4ce2-b618-a804ca9d4741, /data, "xfs", "defaults", "1", "0" ]
