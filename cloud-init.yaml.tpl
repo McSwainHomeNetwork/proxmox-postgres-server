@@ -183,16 +183,20 @@ runcmd:
   - mv /etc/grafana-prometheus.yaml /etc/grafana/provisioning/datasources/prometheus.yaml
   - chown grafana:grafana /etc/grafana/provisioning/datasources/prometheus.yaml
   - crudini --set /etc/grafana/grafana.ini paths data /data/grafana
+  - crudini --set /etc/grafana/grafana.ini plugins plugin_admin_enabled true
+  - crudini --set /etc/grafana/grafana.ini server enforce_domain true
+  - crudini --set /etc/grafana/grafana.ini server root_url 'https://grafana.mcswain.dev'
   - crudini --set /etc/grafana/grafana.ini security secret_key '${grafana_secret_key}'
   - crudini --set /etc/grafana/grafana.ini security cookie_secure true
   - crudini --set /etc/grafana/grafana.ini security cookie_samesite strict
-  - crudini --set /etc/grafana/grafana.ini users allow_sign_up false
+  - crudini --set /etc/grafana/grafana.ini users allow_sign_up true
+  - crudini --set /etc/grafana/grafana.ini users verify_email_enabled true
+  - crudini --set /etc/grafana/grafana.ini users hidden_users admin
   - crudini --set /etc/grafana/grafana.ini users allow_org_create false
-  - crudini --set /etc/grafana/grafana.ini auth disable_login_form true
-  - crudini --set /etc/grafana/grafana.ini auth disable_signout_menu true
-  - crudini --set /etc/grafana/grafana.ini 'auth.anonymous' enabled true
-  - crudini --set /etc/grafana/grafana.ini 'auth.anonymous' org_role Admin
-  - crudini --set /etc/grafana/grafana.ini 'auth.basic' enabled false
+  - crudini --set /etc/grafana/grafana.ini auth disable_login_form false
+  - crudini --set /etc/grafana/grafana.ini auth disable_signout_menu false
+  - crudini --set /etc/grafana/grafana.ini 'auth.anonymous' enabled false
+  - crudini --set /etc/grafana/grafana.ini 'auth.basic' enabled true
   - crudini --set /etc/grafana/grafana.ini 'auth.jwt' enabled false
   - crudini --set /etc/grafana/grafana.ini smtp enabled true
   - crudini --set /etc/grafana/grafana.ini smtp host email.mcswain.dev:465
@@ -205,6 +209,7 @@ runcmd:
   - crudini --set /etc/grafana/grafana.ini database host localhost:5432
   - crudini --set /etc/grafana/grafana.ini database name grafana
   - crudini --set /etc/grafana/grafana.ini database user grafana
+  - crudini --set /etc/grafana/grafana.ini database ssl_mode disable
   - crudini --set /etc/grafana/grafana.ini database password '${postgres_grafana_password}'
   - chown -R grafana:grafana /data/grafana
   - systemctl start grafana-server
