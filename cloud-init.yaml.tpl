@@ -78,9 +78,7 @@ write_files:
       basic_auth:
         username: 'prometheus'
         password: '${prometheus_federation_password}'
-- path: /usr/share/grafana/conf/provisioning/datasources/prometheus.yaml
-  defer: true
-  owner: 'grafana'
+- path: /erc/grafana-prometheus.yaml
   content: |-
     apiVersion: 1
     datasources:
@@ -134,6 +132,8 @@ runcmd:
   - apt-get update
   - apt-get install -y grafana
   - mkdir -p /data/grafana
+  - mv /etc/grafana-prometheus.yaml /usr/share/grafana/conf/provisioning/datasources/prometheus.yaml
+  - chown grafana:grafana /usr/share/grafana/conf/provisioning/datasources/prometheus.yaml
   - systemctl enable --now grafana-server
 
 bootcmd:
