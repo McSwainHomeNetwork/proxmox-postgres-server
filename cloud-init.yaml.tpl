@@ -186,10 +186,12 @@ runcmd:
   - crudini --set /etc/grafana/grafana.ini plugins plugin_admin_enabled true
   - crudini --set /etc/grafana/grafana.ini server enforce_domain true
   - crudini --set /etc/grafana/grafana.ini server root_url 'https://grafana.mcswain.dev'
+  - crudini --set /etc/grafana/grafana.ini server domain grafana.mcswain.dev
   - crudini --set /etc/grafana/grafana.ini security secret_key '${grafana_secret_key}'
   - crudini --set /etc/grafana/grafana.ini security cookie_secure true
   - crudini --set /etc/grafana/grafana.ini security cookie_samesite strict
-  - crudini --set /etc/grafana/grafana.ini users allow_sign_up true
+  - crudini --set /etc/grafana/grafana.ini security disable_initial_admin_creation true
+  - crudini --set /etc/grafana/grafana.ini users allow_sign_up false
   - crudini --set /etc/grafana/grafana.ini users verify_email_enabled true
   - crudini --set /etc/grafana/grafana.ini users hidden_users admin
   - crudini --set /etc/grafana/grafana.ini users allow_org_create false
