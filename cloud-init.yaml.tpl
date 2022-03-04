@@ -36,7 +36,7 @@ write_files:
   content: "*/30 * * * * sh -c 'pg_dumpall -c --if-exists | gzip -9 > /backup/pg-$(date +\"\\%Y_\\%m_\\%d_\\%I_\\%M_\\%p\").sql.gz'\n"
   owner: 'postgres:crontab'
   permissions: '0600'
-- path: /etc/prometheus/prometheus.yml
+- path: /etc/prometheus.yml
   content: |-
     global:
       scrape_interval: 5s
@@ -58,8 +58,6 @@ write_files:
       basic_auth:
         username: 'prometheus'
         password: '${prometheus_federation_password}'
-  defer: true
-  owner: 'prometheus:prometheus'
 - path: /etc/systemd/system/prometheus.service
   content: |-
     [Unit]
@@ -105,6 +103,7 @@ runcmd:
   - mkdir -p /data/prometheus
   - mkdir -p /etc/prometheus
   - [ chown, -R, prometheus:prometheus, /data/prometheus ]
+  - chown prometheus:prometheus /etc/prometheus.yml
   - wget -O /tmp/prometheus.tgz https://github.com/prometheus/prometheus/releases/download/v2.33.4/prometheus-2.33.4.linux-amd64.tar.gz
   - sh -c 'cd /tmp && tar xvfz prometheus.tgz'
   - sudo cp /tmp/prometheus-2.33.4.linux-amd64/prometheus /usr/bin
