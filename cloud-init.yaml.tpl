@@ -132,9 +132,10 @@ runcmd:
   - apt-get update
   - apt-get install -y grafana
   - mkdir -p /data/grafana
-  - mv /etc/grafana-prometheus.yaml /usr/share/grafana/conf/provisioning/datasources/prometheus.yaml
-  - chown grafana:grafana /usr/share/grafana/conf/provisioning/datasources/prometheus.yaml
   - systemctl enable --now grafana-server
+  - mv /etc/grafana-prometheus.yaml /etc/grafana/provisioning/datasources/prometheus.yaml
+  - chown grafana:grafana /etc/grafana/provisioning/datasources/prometheus.yaml
+  - systemctl restart grafana-server
 
 bootcmd:
   - 'mdadm --assemble /dev/md0 /dev/nvme0n1p1 /dev/nvme1n1p1'
