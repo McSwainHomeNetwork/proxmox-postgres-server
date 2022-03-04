@@ -87,6 +87,34 @@ write_files:
     ExecStart=/usr/bin/postgres_exporter --auto-discover-databases
     [Install]
     WantedBy=multi-user.target
+- path: /etc/systemd/system/loki.service
+  defer: true
+  content: |-
+    [Unit]
+    Description=Grafana Loki
+    Wants=network-online.target
+    After=network-online.target
+    [Service]
+    User=loki
+    Group=loki
+    Type=simple
+    ExecStart=/usr/bin/loki -config.file=/etc/loki.yaml
+    [Install]
+    WantedBy=multi-user.target
+- path: /etc/systemd/system/promtail.service
+  defer: true
+  content: |-
+    [Unit]
+    Description=Promtail Loki Exporter
+    Wants=network-online.target
+    After=network-online.target
+    [Service]
+    User=root
+    Group=root
+    Type=simple
+    ExecStart=/usr/bin/promtail -config.file=/etc/promtail.yaml
+    [Install]
+    WantedBy=multi-user.target
 - path: /etc/prometheus/prometheus.yml
   defer: true
   owner: 'prometheus:prometheus'
@@ -120,6 +148,10 @@ write_files:
       static_configs:
       - targets:
         - 'localhost:9187'
+    - job_name: loki
+      static_configs:
+      - targets:
+        - 'localhost:3100'
 - path: /etc/grafana-prometheus.yaml
   content: |-
     apiVersion: 1
@@ -133,6 +165,55 @@ write_files:
       editable: false
       jsonData:
         timeInterval: 5s
+- path: /etc/loki.yml
+  defer: true
+  owner: 'loki:loki'
+  content: |-
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+      grpc_listen_port: 9096
+    common:
+      path_prefix: /data/loki
+      storage:
+        filesystem:
+          chunks_directory: /data/loki/chunks
+          rules_directory: /data/loki/rules
+      replication_factor: 1
+      ring:
+        instance_addr: 127.0.0.1
+        kvstore:
+          store: inmemory
+    schema_config:
+      configs:
+        - from: 2020-10-24
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+    table_manager:
+      retention_deletes_enabled: true
+      # 15 weeks retention
+      retention_period: 2520h
+- path: /etc/promtail.yml
+  defer: true
+  content: |-
+    server:
+      http_listen_port: 9080
+      grpc_listen_port: 0
+    positions:
+      filename: /data/loki/positions.yaml
+    clients:
+    - url: http://localhost:3100/loki/api/v1/push
+    scrape_configs:
+    - job_name: system
+      static_configs:
+      - labels:
+          job: varlogs
+          host: database
+          __path__: /var/log/*log
 
 mounts:
 - [ UUID=59bd7786-1525-4ce2-b618-a804ca9d4741, /data, "xfs", "defaults", "1", "0" ]
@@ -225,6 +306,13 @@ runcmd:
   - cp /tmp/postgres_exporter-0.10.1.linux-amd64/postgres_exporter /usr/bin/postgres_exporter
   - rm -rf /tmp/postgres_exporter-0.10.1.linux-amd64 /tmp/postgres_exporter.tgz
   - systemctl enable --now postgres_exporter
+  - useradd --no-create-home loki
+  - mkdir -p /data/loki/chunks
+  - mkdir -p /data/loki/rules
+  - chown -R loki:loki /data/loki
+  - chown -R loki:loki /etc/loki.yaml
+  - systemctl enable --now loki
+  - systemctl enable --now promtail
 
 bootcmd:
   - 'mdadm --assemble /dev/md0 /dev/nvme0n1p1 /dev/nvme1n1p1'
