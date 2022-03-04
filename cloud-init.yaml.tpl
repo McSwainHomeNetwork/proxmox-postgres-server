@@ -48,14 +48,14 @@ write_files:
     User=prometheus
     Group=prometheus
     Type=simple
-    ExecStart=/usr/local/bin/prometheus \
-        --config.file /etc/prometheus.yml \
+    ExecStart=/usr/bin/prometheus \
+        --config.file /etc/prometheus/prometheus.yml \
         --storage.tsdb.path /data/prometheus/ \
         --web.console.templates=/etc/prometheus/consoles \
         --web.console.libraries=/etc/prometheus/console_libraries
     [Install]
     WantedBy=multi-user.target
-- path: /etc/prometheus.yml
+- path: /etc/prometheus/prometheus.yml
   defer: true
   owner: 'prometheus:prometheus'
   content: |-
