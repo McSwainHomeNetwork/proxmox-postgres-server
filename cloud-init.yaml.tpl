@@ -40,33 +40,25 @@ write_files:
 - path: /etc/prometheus/prometheus.yml
   content: |-
     global:
-      scrape_interval: 5s # By default, scrape targets every 15 seconds.
-      # Attach these labels to any time series or alerts when communicating with
-      # external systems (federation, remote storage, Alertmanager).
-      external_labels:
-        monitor: '${REPLACE_NAME}'
+      scrape_interval: 5s
 
     scrape_configs:
-    # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-    - job_name: tfe
+    - job_name: kubernetes
+      honor_labels: true
+      metrics_path: '/federate'
+
       params:
-        format:
-        - prometheus
-      relabel_configs:
-      - source_labels: [__meta_ec2_instance_id]
-        regex: (.*)
-        target_label: instance
-        replacement: ${1}
-        action: replace
-      ec2_sd_configs:
-      - endpoint: ""
-        region: "REPLACE_REGION"
-        refresh_interval: 1m
-        port: 9090
-        filters:
-        - name: tag:Name
-          values:
-          - ${REPLACE_NAME}
+        'match[]':
+        - '{job="prometheus"}'
+        - '{__name__=~"job:.*"}'
+
+      static_configs:
+      - targets:
+        - 'k8s.prometheus.mcswain.dev'
+
+      basic_auth:
+        username: 'prometheus'
+        password: '${prometheus_federation_password}'
   owner: 'prometheus:prometheus'
 - path: /etc/systemd/system/prometheus.service
   content: |-

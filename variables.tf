@@ -51,3 +51,9 @@ variable "postgres_keycloak_password" {
   sensitive   = true
   description = "Password for keycloak user."
 }
+
+variable "prometheus_federation_password" {
+  type        = string
+  sensitive   = true
+  description = "Password for Prometheus federation basic HTTP auth."
+}
