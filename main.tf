@@ -40,7 +40,7 @@ module "proxmox_cloudinit_vm" {
   source  = "app.terraform.io/McSwainHomeNetwork/cloudinit-vm/proxmox"
   version = "0.0.3"
 
-  name = "postgres"
+  name = "database"
 
   cloud_init          = local.cloud_init
   pve_host            = var.pve_host

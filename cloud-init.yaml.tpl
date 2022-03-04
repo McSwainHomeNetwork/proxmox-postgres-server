@@ -14,6 +14,8 @@ packages:
 - nfs-client
 - postgresql
 - qemu-guest-agent
+- apt-transport-https
+- software-properties-common
 
 write_files:
 - path: /etc/postgresql/12/main/conf.d/custom.conf
@@ -75,6 +77,19 @@ write_files:
       basic_auth:
         username: 'prometheus'
         password: '${prometheus_federation_password}'
+- path: /etc/grafana/provisioning/datasources/prometheus.yml
+  defer: true
+  owner: 'grafana'
+  content: |-
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: direct
+      url: http://localhost:9090
+      isDefault: true
+      version: 1
+      editable: false
 
 mounts:
 - [ UUID=59bd7786-1525-4ce2-b618-a804ca9d4741, /data, "xfs", "defaults", "1", "0" ]
@@ -113,6 +128,12 @@ runcmd:
   - [ chown, -R, prometheus:prometheus, /etc/prometheus ]
   - systemctl daemon-reload
   - systemctl enable --now prometheus
+  - curl -fSsL https://packages.grafana.com/gpg.key | apt-key add -
+  - echo "deb https://packages.grafana.com/oss/deb stable main" | tee -a /etc/apt/sources.list.d/grafana.list
+  - apt-get update
+  - apt-get install grafana
+  - mkdir -p /data/grafana
+  - systemctl enable --now grafana-server
 
 bootcmd:
   - 'mdadm --assemble /dev/md0 /dev/nvme0n1p1 /dev/nvme1n1p1'
