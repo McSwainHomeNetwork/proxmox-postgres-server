@@ -11,7 +11,6 @@ package_update: true
 package_upgrade: true
 
 packages:
-- jq
 - nfs-client
 - postgresql
 - qemu-guest-agent
@@ -59,6 +58,7 @@ write_files:
       basic_auth:
         username: 'prometheus'
         password: '${prometheus_federation_password}'
+  defer: true
   owner: 'prometheus:prometheus'
 - path: /etc/systemd/system/prometheus.service
   content: |-
