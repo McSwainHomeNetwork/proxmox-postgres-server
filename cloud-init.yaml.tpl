@@ -17,6 +17,7 @@ packages:
 - apt-transport-https
 - software-properties-common
 - crudini
+- unzip
 
 write_files:
 - path: /etc/postgresql/12/main/conf.d/custom.conf
@@ -165,7 +166,7 @@ write_files:
       editable: false
       jsonData:
         timeInterval: 5s
-- path: /etc/loki.yml
+- path: /etc/loki.yaml
   defer: true
   owner: 'loki:loki'
   content: |-
@@ -197,7 +198,7 @@ write_files:
       retention_deletes_enabled: true
       # 15 weeks retention
       retention_period: 2520h
-- path: /etc/promtail.yml
+- path: /etc/promtail.yaml
   defer: true
   content: |-
     server:
@@ -311,6 +312,15 @@ runcmd:
   - mkdir -p /data/loki/rules
   - chown -R loki:loki /data/loki
   - chown -R loki:loki /etc/loki.yaml
+  - wget -O /tmp/promtail.zip https://github.com/grafana/loki/releases/download/v2.4.2/promtail-linux-amd64.zip
+  - wget -O /tmp/loki.zip https://github.com/grafana/loki/releases/download/v2.4.2/loki-linux-amd64.zip
+  - sh -c 'cd /tmp && unzip promtail.zip'
+  - sh -c 'cd /tmp && unzip loki.zip'
+  - mv /tmp/promtail-linux-amd64 /usr/bin/promtail
+  - mv /tmp/loki-linux-amd64 /usr/bin/loki
+  - rm -rf /tmp/loki.zip /tmp/promtail.zip
+  - chmod a+x /usr/bin/promtail
+  - chmod a+x /usr/bin/loki
   - systemctl enable --now loki
   - systemctl enable --now promtail
 
