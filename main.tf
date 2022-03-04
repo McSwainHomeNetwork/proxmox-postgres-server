@@ -33,6 +33,9 @@ locals {
     postgres_keycloak_password     = var.postgres_keycloak_password
     postgres_vaultwarden_password  = var.postgres_vaultwarden_password
     prometheus_federation_password = var.prometheus_federation_password
+    grafana_secret_key             = var.grafana_secret_key
+    grafana_smtp_password          = var.grafana_smtp_password
+    postgres_grafana_password      = var.postgres_grafana_password
   })
 }
 

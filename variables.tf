@@ -57,3 +57,21 @@ variable "prometheus_federation_password" {
   sensitive   = true
   description = "Password for Prometheus federation basic HTTP auth."
 }
+
+variable "grafana_secret_key" {
+  type        = string
+  sensitive   = true
+  description = "Grafana security secret_key value."
+}
+
+variable "grafana_smtp_password" {
+  type        = string
+  sensitive   = true
+  description = "Password for Grafana SMTP auth."
+}
+
+variable "postgres_grafana_password" {
+  type        = string
+  sensitive   = true
+  description = "Password for Postgres Grafana user."
+}
