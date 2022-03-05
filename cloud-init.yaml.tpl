@@ -197,7 +197,6 @@ write_files:
       # 15 weeks retention
       retention_period: 2520h
 - path: /etc/promtail.yaml
-  defer: true
   content: |-
     server:
       http_listen_port: 9080
@@ -213,7 +212,6 @@ write_files:
           job: varlogs
           host: database
           __path__: /var/log/*log
-
 mounts:
 - [ UUID=59bd7786-1525-4ce2-b618-a804ca9d4741, /data, "xfs", "defaults", "1", "0" ]
 - [ 192.168.1.135:/mnt/data/backups/Homelab/pgdump, /backup, "nfs", "nfsvers=4.1,noatime", "0", "0" ]
