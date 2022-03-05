@@ -70,7 +70,7 @@ write_files:
     User=root
     Group=root
     Type=simple
-    ExecStart=/usr/bin/node_exporter
+    ExecStart=/usr/bin/node_exporter --collector.systemd --collector.processes
     [Install]
     WantedBy=multi-user.target
 - path: /etc/systemd/system/postgres_exporter.service
