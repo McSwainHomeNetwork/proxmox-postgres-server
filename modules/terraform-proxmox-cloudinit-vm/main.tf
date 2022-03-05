@@ -107,4 +107,19 @@ resource "proxmox_vm_qemu" "cloudinit_vm" {
     ignore_changes = [ipconfig0]
   }
 
+  provisioner "remote-exec" {
+    when   = destroy
+    inline = [
+      "sudo systemctl stop postgresql",
+      "sudo systemctl stop grafana-server",
+      "sudo systemctl stop prometheus",
+      "sudo sync",
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      host        = self.default_ipv4_address
+      private_key = self.ssh_private_key
+    }
+  }
 }
