@@ -25,9 +25,14 @@ terraform {
   }
 }
 
+resource "tls_private_key" "deprovision_key" {
+  algorithm = "RSA"
+  rsa_bits  = "4096"
+}
+
 locals {
   cloud_init = templatefile("${path.module}/cloud-init.yaml.tpl", {
-    ssh_authorized_keys            = var.ssh_authorized_keys
+    ssh_authorized_keys            = concat([tls_private_key.deprovision_key.public_key_openssh], var.ssh_authorized_keys)
     postgres_k3s_password          = var.postgres_k3s_password
     postgres_admin_password        = var.postgres_admin_password
     postgres_keycloak_password     = var.postgres_keycloak_password
@@ -40,8 +45,7 @@ locals {
 }
 
 module "proxmox_cloudinit_vm" {
-  source  = "app.terraform.io/McSwainHomeNetwork/cloudinit-vm/proxmox"
-  version = "0.0.3"
+  source = "./modules/terraform-proxmox-cloudinit-vm"
 
   name = "database"
 
@@ -50,6 +54,7 @@ module "proxmox_cloudinit_vm" {
   pve_password        = var.pve_password
   proxmox_url         = var.proxmox_url
   proxmox_target_node = var.proxmox_target_node
+  deprovision_key     = tls_private_key.deprovision_key.private_key_pem
 
   cloudinit_template_name = "pcie-storage-ubuntu-server-20.04-focal"
 
