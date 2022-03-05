@@ -166,6 +166,15 @@ write_files:
       editable: false
       jsonData:
         timeInterval: 5s
+- path: /etc/grafana-loki.yaml
+  content: |-
+    apiVersion: 1
+    datasources:
+    - name: Loki
+      type: loki
+      access: proxy
+      editable: false
+      url: http://localhost:3100
 - path: /etc/loki.yaml
   content: |-
     auth_enabled: false
@@ -259,7 +268,9 @@ runcmd:
   - systemctl enable --now grafana-server
   - systemctl stop grafana-server
   - mv /etc/grafana-prometheus.yaml /etc/grafana/provisioning/datasources/prometheus.yaml
+  - mv /etc/grafana-loki.yaml /etc/grafana/provisioning/datasources/loki.yaml
   - chown grafana:grafana /etc/grafana/provisioning/datasources/prometheus.yaml
+  - chown grafana:grafana /etc/grafana/provisioning/datasources/loki.yaml
   - crudini --set /etc/grafana/grafana.ini paths data /data/grafana
   - crudini --set /etc/grafana/grafana.ini plugins plugin_admin_enabled true
   - crudini --set /etc/grafana/grafana.ini server enforce_domain true
