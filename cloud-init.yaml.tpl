@@ -172,6 +172,7 @@ write_files:
     datasources:
     - name: Loki
       type: loki
+      isDefault: true
       access: proxy
       editable: false
       url: http://localhost:3100
