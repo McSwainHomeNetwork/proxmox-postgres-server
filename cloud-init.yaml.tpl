@@ -153,6 +153,10 @@ write_files:
       static_configs:
       - targets:
         - 'localhost:3100'
+    - job_name: truenas
+      static_configs:
+      - targets:
+        - '192.168.1.135:9103'
 - path: /etc/grafana-prometheus.yaml
   content: |-
     apiVersion: 1
