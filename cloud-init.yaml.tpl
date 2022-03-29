@@ -146,6 +146,8 @@ write_files:
       - targets:
         - 'localhost:9100'
         - '192.168.1.1:9100'
+        - '192.168.1.17:9100'
+        - '192.168.1.25:9100'
     - job_name: postgres
       static_configs:
       - targets:
