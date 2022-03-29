@@ -145,6 +145,7 @@ write_files:
       static_configs:
       - targets:
         - 'localhost:9100'
+        - '192.168.1.1:9100'
     - job_name: postgres
       static_configs:
       - targets:
@@ -157,6 +158,18 @@ write_files:
       static_configs:
       - targets:
         - '192.168.1.135:9103'
+    - job_name: router-unbound
+      static_configs:
+      - targets:
+        - '192.168.1.1:9167'
+    - job_name: router-leases
+      static_configs:
+      - targets:
+        - '192.168.1.1:9198'
+    - job_name: router-adguard
+      static_configs:
+      - targets:
+        - '192.168.1.1:9617'
 - path: /etc/grafana-prometheus.yaml
   content: |-
     apiVersion: 1
