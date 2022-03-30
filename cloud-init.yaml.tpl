@@ -242,6 +242,15 @@ write_files:
           job: varlogs
           host: database
           __path__: /var/log/*log
+      - labels:
+          job: postgres
+          host: database
+          __path__: /var/log/postgresql/*
+    - job_name: journal
+      journal:
+        labels:
+          job: journal
+          host: database
 mounts:
 - [ UUID=59bd7786-1525-4ce2-b618-a804ca9d4741, /data, "xfs", "defaults", "1", "0" ]
 - [ 192.168.1.135:/mnt/data/backups/Homelab/pgdump, /backup, "nfs", "nfsvers=4.1,noatime", "0", "0" ]
